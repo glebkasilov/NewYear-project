@@ -1,3 +1,5 @@
+import json
+
 from PyQt6 import uic, QtGui
 from PyQt6.QtGui import QPixmap
 from PyQt6.QtCore import Qt
@@ -22,39 +24,47 @@ class Registr_Window(QMainWindow):
         password2 = self.input_password_2.text()
 
         if email == '' or password == '' or password2 == '':
-            self.output_text.setText('Enter all fields')
+            self.output_text.setText('Заполните все поля')
             self.output_text.setFont(QtGui.QFont('MS Shell Dlg 2', 14))
             self.output_text.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
             return
 
         elif password != password2:
-            self.output_text.setText('Passwords do not match')
+            self.output_text.setText('Пароли не совпадают')
             self.output_text.setFont(QtGui.QFont('MS Shell Dlg 2', 14))
             self.output_text.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
             return
 
         elif email in UserRepository.get_emails():
-            self.output_text.setText('User already exists')
+            self.output_text.setText('Такая почта уже зарегистрирована')
             self.output_text.setFont(QtGui.QFont('MS Shell Dlg 2', 14))
             self.output_text.setAlignment(Qt.AlignmentFlag.AlignCenter)
             return
 
         else:
             UserRepository.create_user(email, password)
-            
-            self.output_text.setText('Success')
+
+            self.output_text.setText('Что-то пошло не так')
             self.output_text.setFont(QtGui.QFont('MS Shell Dlg 2', 14))
             self.output_text.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-            from __main__ import Autorisation   
-            self.window = Autorisation()
+            with open('app/cache/user.json', 'r') as jsonFile:
+                file = json.load(jsonFile)
+                file["user_email"] = email
+                file["is_authorized"] = True
+
+            with open('app/cache/user.json', 'w') as jsonFile:
+                json.dump(file, jsonFile)
+
+            from app.windows.listWindow import ListWindow
+            self.window = ListWindow()
             self.window.show()
             Registr_Window.close(self)
 
     def enter_login(self):
-        from __main__ import Autorisation
+        from app.windows.autorisation import Autorisation
         self.window = Autorisation()
         self.window.show()
         Registr_Window.close(self)
