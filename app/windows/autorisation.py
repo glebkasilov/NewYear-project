@@ -16,8 +16,6 @@ class Autorisation(QMainWindow):
         self.actionOpen_window_registration.triggered.connect(
             self.registration_window)
 
-        # self.logo.setPixmap(QtGui.QPixmap('app/photos/logo.jpg'))
-
         self.enter_button.clicked.connect(self.enter)
 
     def enter(self):

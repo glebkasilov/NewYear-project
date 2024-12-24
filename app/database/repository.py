@@ -64,19 +64,33 @@ class GiftsRepository(BaseRepository):
         cur = con.cursor()
         lists = cur.execute('SELECT * FROM gifts').fetchall()
         return lists
-    
+
     @classmethod
     def get_list(self, email):
         con = sqlite3.connect('app/database/database.db')
         cur = con.cursor()
         lists = cur.execute(
-            f'SELECT name, count, price, description, isReady FROM gifts WHERE email = ?', 
+            f'SELECT name, count, price, description, isReady FROM gifts WHERE email = ?',
             (email,)
-            ).fetchall()
+        ).fetchall()
         return lists
 
     @classmethod
+    def get_list_of_names(self, email):
+        con = sqlite3.connect('app/database/database.db')
+        cur = con.cursor()
+        lists = cur.execute(
+            f'SELECT name FROM gifts WHERE email = ?',
+            (email,)
+        ).fetchall()
+        return [name[0] for name in lists]
+
+    @classmethod
     def create_list(self, email, name, count, price, description, isReady):
+        if name in self.get_list_of_names(email):
+            print("Name already exists")
+            return "Name already exists"
+
         con = sqlite3.connect('app/database/database.db')
         cur = con.cursor()
         cur.execute(
@@ -93,52 +107,73 @@ class GiftsRepository(BaseRepository):
         con.commit()
         con.close()
         return
-    
+
     @classmethod
-    def delete_list(self, email, name, count, price, description, isReady):
+    def delete_list(self, email, name):
         con = sqlite3.connect('app/database/database.db')
         cur = con.cursor()
         cur.execute(
-            f'DELETE FROM gifts WHERE email = ? AND name = ? AND count = ? AND price = ? AND description = ? AND isReady = ? LIMIT 1',
+            f'DELETE FROM gifts WHERE email = ? AND name = ?',
             (
                 email,
-                name,
-                count,
-                price,
-                description,
-                isReady
+                name
             )
         )
         con.commit()
         con.close()
         return
-    
+
     @classmethod
-    def update_list(self, email, name, count, price, description, isReady, emailNew, nameNew, countNew, priceNew, descriptionNew, isReadyNew):
+    def update_list(self, email, name, nameNew, countNew, priceNew, descriptionNew, isReadyNew):
         con = sqlite3.connect('app/database/database.db')
         cur = con.cursor()
         cur.execute(
             f"""
-            UPDATE gifts 
-            WHERE email = ? AND name = ? AND count = ? AND price = ? AND description = ? AND isReady = ?
-            SET email = ?, name = ?, count = ?, price = ?, description = ?, isReady = ? LIMIT 1
+            UPDATE gifts
+            SET name = ?, count = ?, price = ?, description = ?, isReady = ?
+            WHERE email = ? AND name = ?
             """,
             (
-                email,
-                name,
-                count,
-                price,
-                description,
-                isReady,
-                emailNew,
                 nameNew,
                 countNew,
                 priceNew,
                 descriptionNew,
-                isReadyNew
+                isReadyNew,
+                email,
+                name,
             )
         )
+
         con.commit()
         con.close()
         return
-    
+
+    @classmethod
+    def update_isReady(self, email, name):
+        con = sqlite3.connect('app/database/database.db')
+        cur = con.cursor()
+        isReady = cur.execute(
+            f'SELECT isReady FROM gifts WHERE email = ? AND name = ?',
+            (
+                email,
+                name
+            )
+        ).fetchall()[0][0]
+
+        if isReady:
+            isReady = 0
+        else:
+            isReady = 1
+
+        cur.execute(
+            f'UPDATE gifts SET isReady = ? WHERE email = ? AND name = ?',
+            (
+                isReady,
+                email,
+                name
+            )
+        )
+
+        con.commit()
+        con.close()
+        return
