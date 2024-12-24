@@ -20,5 +20,4 @@ class EditGiftReady(QDialog):
     def enter(self):
         GiftsRepository.update_isReady(
             self.email, self.editItems.currentText())
-        print(self.editItems.currentText())
         self.close()

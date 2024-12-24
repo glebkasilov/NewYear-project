@@ -12,6 +12,11 @@ class Autorisation(QMainWindow):
         super().__init__()
 
         uic.loadUi('app/style/login.ui', self)
+        
+        self.logo.setPixmap(QtGui.QPixmap('app/photos/logo.png'))
+        self.logo.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        
+        self.pictureQ.setPixmap(QtGui.QPixmap('app/photos/listback.jpg'))
 
         self.actionOpen_window_registration.triggered.connect(
             self.registration_window)

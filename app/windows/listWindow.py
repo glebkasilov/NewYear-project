@@ -1,4 +1,6 @@
 import json
+import time
+import threading
 
 from PyQt6 import uic, QtGui
 from PyQt6.QtGui import QPixmap
@@ -17,6 +19,8 @@ class ListWindow(QMainWindow):
             self.user_email = file["user_email"]
 
         uic.loadUi('app/style/table.ui', self)
+        
+        self.pictureQ.setPixmap(QtGui.QPixmap('app/photos/background.jpeg'))
 
         self.updateTable()
 
@@ -25,11 +29,12 @@ class ListWindow(QMainWindow):
         self.actionOpen_login_window.triggered.connect(self.exit_from_account)
 
         self.addElement.clicked.connect(self.open_window_adding_gift)
-        self.editElementReady.clicked.connect(
-            self.open_window_editing_gift_ready)
+        self.editElementReady.clicked.connect(self.open_window_editing_gift_ready)
         self.editElement.clicked.connect(self.open_window_editing_gift)
         self.deleteElemet.clicked.connect(self.open_window_deleting_gift)
         self.xlxsButton.clicked.connect(self.open_window_exporting_gift)
+        
+        threading.Thread(target=self.autoUpdate).start()
 
     def updateTable(self):
         self.table.setColumnCount(6)
@@ -37,7 +42,6 @@ class ListWindow(QMainWindow):
         self.table.setHorizontalHeaderLabels(
             ['Название', 'Количество', 'Цена за ед.', 'Цена всего', "Описание", "Статус"])
 
-        total_width = self.table.width()
         num_cols = self.table.columnCount()
         col_width = [200, 75, 80, 80, 545, 80]
 
@@ -105,3 +109,8 @@ class ListWindow(QMainWindow):
         self.window = ExportExcel(self.user_email)
         self.window.show()
         self.updateTable()
+    
+    def autoUpdate(self):
+        while True:
+            self.updateTable()
+            time.sleep(0.5)

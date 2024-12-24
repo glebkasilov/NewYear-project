@@ -13,7 +13,10 @@ class Registr_Window(QMainWindow):
         super().__init__()
         uic.loadUi('app/style/registration.ui', self)
 
-        self.logo.setPixmap(QPixmap('app/photos/logo.jpg'))
+        self.logo.setPixmap(QtGui.QPixmap('app/photos/logo.png'))
+        self.logo.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
+        
+        self.pictureQ.setPixmap(QtGui.QPixmap('app/photos/registrationback.jpg'))
 
         self.enter_button.clicked.connect(self.enter)
         self.actionOpen_window_login.triggered.connect(self.enter_login)
